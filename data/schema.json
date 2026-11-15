@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "overlord-activity/1",
+  "title": "Overlord Activity dashboard data",
+  "type": "object",
+  "required": ["schema", "sample", "source", "generated", "step", "names", "chars", "buckets", "sessions", "weekly"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "overlord-activity/1" },
+    "sample": { "type": "boolean", "description": "true = demo data, the page shows a Sample data banner" },
+    "source": { "enum": ["savedvariables", "oa1"] },
+    "generated": { "type": "integer", "description": "Unix time the data was saved/exported" },
+    "step": { "const": 900 },
+    "names": {
+      "type": "object", "additionalProperties": false, "required": ["fights", "zones", "points"],
+      "properties": {
+        "fights": { "type": "object", "description": "front id or #uiMapID -> {kind f|w, name}",
+          "additionalProperties": { "type": "object", "required": ["kind", "name"], "additionalProperties": false,
+            "properties": { "kind": { "enum": ["f", "w"] }, "name": { "type": "string" } } } },
+        "zones": { "type": "object", "description": "uiMapID of your own zone -> name", "additionalProperties": { "type": "string" } },
+        "points": { "type": "object", "description": "frontId/pointId -> capture point name", "additionalProperties": { "type": "string" } }
+      }
+    },
+    "chars": { "type": "array", "items": { "type": "string" }, "description": "your characters (aliased by default)" },
+    "buckets": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["t", "d", "n", "ch", "ff", "hk", "f", "pz", "cp"],
+        "properties": {
+          "t": { "type": "integer", "description": "bucket start, Unix time" },
+          "d": { "enum": [900, 3600], "description": "bucket length in seconds (3600 = compacted, older than 30 days)" },
+          "n": { "type": "integer", "minimum": 0, "description": "30-second samples recorded" },
+          "ch": { "type": ["integer", "null"], "description": "index into chars" },
+          "ff": { "type": ["string", "null"], "description": "featured front id" },
+          "hk": { "type": ["integer", "null"], "description": "own HKs gained; null = not readable (not zero)" },
+          "f": { "type": "object", "description": "fight key -> [sumKills, maxKills, maxCaptures]; estimated HKs = sumKills/10",
+            "additionalProperties": { "type": "array", "items": { "type": "integer" }, "minItems": 3, "maxItems": 3 } },
+          "pz": { "type": "object", "description": "own zone uiMapID -> samples", "additionalProperties": { "type": "integer" } },
+          "cp": { "type": "object", "description": "frontId/pointId -> new captures seen", "additionalProperties": { "type": "integer" } }
+        }
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["s", "e", "ch"],
+        "properties": { "s": { "type": "integer" }, "e": { "type": "integer" }, "ch": { "type": "integer" } } }
+    },
+    "weekly": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["weeks", "factions", "guilds", "me", "frontLast", "victory"],
+      "properties": {
+        "weeks": { "type": "array", "items": { "type": "object", "additionalProperties": false,
+          "required": ["cs", "src", "total", "players", "cap", "zones", "alli", "horde", "topKills"],
+          "properties": {
+            "cs": { "type": "integer" }, "src": { "type": "string" }, "total": { "type": "integer" },
+            "players": { "type": "integer" }, "cap": { "type": ["integer", "null"] }, "zones": { "type": ["integer", "null"] },
+            "alli": { "type": "integer" }, "horde": { "type": "integer" }, "topKills": { "type": "integer" } } } },
+        "factions": { "type": "array", "items": { "type": "object", "additionalProperties": false,
+          "required": ["t", "src", "a", "h", "u", "n"],
+          "properties": { "t": { "type": "integer" }, "src": { "type": "string" }, "a": { "type": "integer" }, "h": { "type": "integer" },
+            "u": { "type": ["integer", "null"] }, "n": { "type": ["integer", "null"] } } } },
+        "guilds": { "type": "array", "items": { "type": "object", "additionalProperties": false,
+          "required": ["cs", "rank", "kills", "faction", "name"],
+          "properties": { "cs": { "type": "integer" }, "rank": { "type": "integer" }, "kills": { "type": "integer" },
+            "faction": { "type": "string" }, "name": { "type": "string" } } } },
+        "me": { "type": ["object", "null"], "additionalProperties": false, "required": ["cs", "rank", "kills", "kb", "players"],
+          "properties": { "cs": { "type": "integer" }, "rank": { "type": "integer" }, "kills": { "type": "integer" },
+            "kb": { "type": ["integer", "null"] }, "players": { "type": "integer" } } },
+        "frontLast": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["front", "t"],
+          "properties": { "front": { "type": "string" }, "t": { "type": "integer" } } } },
+        "victory": { "type": ["object", "null"], "additionalProperties": false, "required": ["front", "ally", "enemy", "total", "faction"],
+          "properties": { "front": { "type": "string" }, "ally": { "type": "integer" }, "enemy": { "type": "integer" },
+            "total": { "type": "integer" }, "faction": { "type": "string" } } }
+      }
+    }
+  }
+}

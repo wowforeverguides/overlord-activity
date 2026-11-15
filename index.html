@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Overlord Activity – World PvP Dashboard</title>
+<meta name="description" content="World PvP activity dashboard: estimated honorable kills by front and zone, a weekday-by-hour heatmap, trends, sessions, coverage and Overlord's weekly network totals.">
+<meta name="theme-color" content="#11141a">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Overlord Activity">
+<meta property="og:title" content="Overlord Activity – World PvP Dashboard">
+<meta property="og:description" content="Where and when world PvP happens: estimated HKs by front, a 7×24 heatmap, weekly trends and Overlord's weekly network totals.">
+<meta property="og:url" content="https://wowforeverguides.github.io/overlord-activity/">
+<meta property="og:image" content="https://wowforeverguides.github.io/overlord-activity/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Overlord Activity: a dark weekday-by-hour heatmap with amber cells">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Overlord Activity – World PvP Dashboard">
+<meta name="twitter:description" content="Estimated HKs by front, a 7×24 heatmap, weekly trends and Overlord's weekly network totals.">
+<meta name="twitter:image" content="https://wowforeverguides.github.io/overlord-activity/assets/og-image.png">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <h1>Overlord Activity</h1>
+    <p class="tagline">World PvP activity dashboard: where and when the fights happen.</p>
+    <nav aria-label="Sections">
+      <a href="#top-fronts">Top fronts</a>
+      <a href="#heatmap">Heatmap</a>
+      <a href="#trends">Zone trends</a>
+      <a href="#week">This week</a>
+      <a href="#sessions">Sessions</a>
+      <a href="#coverage">Coverage</a>
+      <a href="#weekly">Overlord weekly</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div id="banner" class="banner" role="status" hidden></div>
+  <p id="meta" class="meta">Loading data…</p>
+  <noscript><p class="banner">This dashboard needs JavaScript to draw its charts.</p></noscript>
+
+  <section id="summary" class="cards" aria-label="Summary"></section>
+
+  <section id="top-fronts" class="panel">
+    <div class="panel-head">
+      <h2>Top zones and fronts by estimated HKs</h2>
+      <div class="seg" role="group" aria-label="Time window" data-group="topWin">
+        <button type="button" data-v="7">7 days</button><button type="button" data-v="30">30 days</button><button type="button" data-v="all">All time</button>
+      </div>
+    </div>
+    <p class="hint">Estimated HKs = Overlord's "last 5 min" kill counts summed over 30-second samples ÷ 10. They count everyone fighting there while you were online, not only your own kills.</p>
+    <div id="top-table" class="table-wrap"></div>
+    <h3>Your own zones</h3>
+    <div id="own-zones" class="table-wrap"></div>
+  </section>
+
+  <section id="heatmap" class="panel">
+    <div class="panel-head">
+      <h2>Weekday × hour heatmap</h2>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Time window" data-group="heatWin">
+          <button type="button" data-v="7">7 days</button><button type="button" data-v="30">30 days</button><button type="button" data-v="all">All time</button>
+        </div>
+        <div class="seg" role="group" aria-label="Measure" data-group="heatMetric">
+          <button type="button" data-v="rate">Est. HKs per hour</button><button type="button" data-v="total">Est. HKs</button><button type="button" data-v="hours">Hours recorded</button>
+        </div>
+      </div>
+    </div>
+    <p class="hint" id="heat-hint"></p>
+    <div id="heat-grid" class="heat-wrap"></div>
+    <div id="heat-legend" class="legend"></div>
+  </section>
+
+  <section id="trends" class="panel">
+    <div class="panel-head">
+      <h2>Zone trends</h2>
+      <div class="seg" role="group" aria-label="Measure" data-group="trendMetric">
+        <button type="button" data-v="total">Est. HKs per day</button><button type="button" data-v="rate">Est. HKs per recorded hour</button>
+      </div>
+    </div>
+    <p class="hint">Last 30 days by local calendar day. Days with nothing recorded are left as gaps, not zero.</p>
+    <div id="trend-chart" class="chart"></div>
+    <div id="trend-legend" class="legend"></div>
+  </section>
+
+  <section id="week" class="panel">
+    <h2>This week vs last week</h2>
+    <p class="hint" id="week-hint"></p>
+    <div id="week-table" class="table-wrap"></div>
+  </section>
+
+  <section id="sessions" class="panel">
+    <h2>Sessions</h2>
+    <p class="hint">Play sessions recorded by the addon, newest first. Est. HKs are the recorded activity during each session.</p>
+    <div id="session-table" class="table-wrap"></div>
+    <button type="button" id="session-more" class="more" hidden>Show all sessions</button>
+  </section>
+
+  <section id="coverage" class="panel">
+    <h2>Coverage</h2>
+    <p class="hint">Data exists only while the game was running. Empty slots mean "not recorded", never "no fighting".</p>
+    <div id="coverage-cards" class="cards small"></div>
+    <div id="coverage-chart" class="chart"></div>
+  </section>
+
+  <section id="weekly" class="panel">
+    <h2>Overlord weekly network data (v1.4.0)</h2>
+    <p class="hint">These numbers come from Overlord's shared network data (what Overlord users' clients report and sync), not from your own recording. All of them are estimates.</p>
+    <div id="weekly-empty" class="empty" hidden>No weekly records in this data (they need Overlord Activity 1.4.0 or newer).</div>
+    <div id="weekly-body">
+      <h3>Weeks <span class="tag">W</span></h3>
+      <div id="weeks-chart" class="chart"></div>
+      <div id="weeks-table" class="table-wrap"></div>
+      <div class="two">
+        <div>
+          <h3>Faction totals of the running week <span class="tag">F</span></h3>
+          <div id="faction-chart" class="chart"></div>
+          <div id="faction-legend" class="legend"></div>
+        </div>
+        <div>
+          <h3>Top guilds this week <span class="tag">G</span></h3>
+          <div id="guild-table" class="table-wrap"></div>
+        </div>
+      </div>
+      <div class="two">
+        <div>
+          <h3>Your place in the ranking <span class="tag">M</span></h3>
+          <div id="me-box"></div>
+          <h3>Last front victory <span class="tag">V</span></h3>
+          <div id="victory-box"></div>
+        </div>
+        <div>
+          <h3>Fronts last seen active <span class="tag">L</span></h3>
+          <div id="front-last" class="table-wrap"></div>
+        </div>
+      </div>
+      <details class="glossary" open>
+        <summary>What the weekly fields mean</summary>
+        <dl>
+          <dt><span class="tag">W</span> Week</dt>
+          <dd>One Overlord campaign week, keyed by its start. <b>Source</b> "history" = a finished week from Overlord's weekly archive (that week's top 100 players only); "live" = the running week, summed by Overlord Activity from Overlord's ranking. <b>Top-100 HKs</b> (total) is the top 100's kills so live and archived weeks compare. <b>Players</b> = 100 for archived weeks; for the live week, every identity in the ranking. <b>Captures</b> = sum of the top 100's capture counts (not known for the live week). <b>Zones captured</b> = Overlord's total zones captured. <b>Alliance / Horde</b> = HKs whose player faction is known (0 = unknown); in the live week these are summed over the whole ranking, so they can be larger than the top-100 total. <b>Best player HKs</b> = the week's top player's kills (the name is not published).</dd>
+          <dt><span class="tag">F</span> Faction sample</dt>
+          <dd>Faction HK totals of the running week at a moment in time, taken every 10 minutes (this and last week only). <b>live</b> = Overlord Activity's own sum of the whole ranking, de-duplicated by identity; <b>cache</b> = Overlord's saved login preview, used until the first live sum of a week. <b>Unknown</b> = HKs of players whose faction Overlord doesn't know; <b>players</b> = identities counted.</dd>
+          <dt><span class="tag">G</span> Guild</dt>
+          <dd>Top 10 guilds of the running week by HKs, with their faction.</dd>
+          <dt><span class="tag">M</span> Your place</dt>
+          <dd>Your own rank, HKs and killing blows in Overlord's ranking for that week, out of all players counted. Only present when your character was found in the ranking.</dd>
+          <dt><span class="tag">L</span> Front last seen</dt>
+          <dd>The last time each front was seen active, from Overlord's saved front activity. It can be a time when you were offline.</dd>
+          <dt><span class="tag">V</span> Last victory</dt>
+          <dd>Overlord's snapshot of the last front victory: the front, allied kills, enemy kills, total kills and the winning faction.</dd>
+          <dt>Empty values</dt>
+          <dd>An empty number means "not known", never zero. Shown here as "–".</dd>
+        </dl>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Data comes from the Overlord Activity addon (own 15-minute recordings) and Overlord's weekly network data. HK figures are estimates.</p>
+    <p>Privacy: the weekly best player's name is never published, and character names are shown as "Character 1", "Character 2"… Guild names come from Overlord's public weekly ranking.</p>
+    <p>World of Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. This fan-made page is not affiliated with or endorsed by Blizzard Entertainment.</p>
+  </div>
+</footer>
+</body>
+</html>
