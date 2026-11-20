@@ -60,13 +60,22 @@ powershell -ExecutionPolicy Bypass -File .\overlord-upload.ps1
 
 Each run that finds new data makes one commit to `data/activity.json`.
 
-### Automatic uploads: not enabled yet, pending the owner's decision
+### Automatic uploads (recommended: Watch mode)
 
-The folder also contains a launcher wrapper (`Launch WoW and upload.cmd`) and a Task
-Scheduler installer (`install-task.ps1`). Both would upload after every play session, which
-adds one commit to the repository's main branch per session. They are **not enabled yet,
-pending the owner's decision** on that commit-per-upload history. Do not set them up until
-that decision is made; this README will then describe how to switch them on.
+Automatic uploads are approved by the owner. Each play session adds one commit to the
+repository's main branch. The recommended way is the Task Scheduler job in Watch mode: it
+starts at log on, waits in the background (checks every 15 seconds) and uploads each time
+the game closes.
+
+```powershell
+cd "$HOME\Documents\OverlordActivity"
+powershell -ExecutionPolicy Bypass -File .\install-task.ps1            # Watch mode (default)
+powershell -ExecutionPolicy Bypass -File .\install-task.ps1 -Remove    # turn it off again
+```
+
+Alternatives: `install-task.ps1 -Mode Interval -Minutes 60` (uploads only if the data
+changed), or point your desktop shortcut at `Launch WoW and upload.cmd`, which starts the
+game and uploads when it closes. Use only one automatic method.
 
 ## 5. Test it
 
@@ -83,7 +92,7 @@ Then open the site; the yellow "Sample data" banner disappears once your file is
 Options (command line or config file): `-WowDir`, `-Account`, `-SavedVariables <file>`,
 `-Owner`, `-Repo`, `-Branch`, `-CharacterNames Alias|Keep`, `-Days N` (only the last N days),
 `-Force` (upload even if unchanged). `-Launch`, `-Watch` and `-GameExe` belong to the
-automatic modes, which are not enabled yet (see step 4).
+automatic modes (see step 4).
 
 Notes
 - The game writes `OverlordActivity.lua` when you log out or exit, so run the upload after

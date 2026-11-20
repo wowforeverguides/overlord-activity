@@ -9,10 +9,10 @@ zone trends, this week vs last week, sessions, coverage, and Overlord's weekly n
 - `data/activity.json` - your data, uploaded by the Windows uploader. Until it exists the page
   shows `data/sample.json` with a "Sample data" banner.
 - `data/schema.json` - JSON Schema of the data file (`overlord-activity/1`).
-- `uploader/` - Windows upload script; see [uploader/README.md](uploader/README.md). For now
-  the recommended use is a manual one-off upload after the token is set. The launcher wrapper
-  and the Task Scheduler auto-run are included but **not enabled yet, pending the owner's
-  decision** (each automatic upload would add a commit to main).
+- `uploader/` - Windows upload script; see [uploader/README.md](uploader/README.md). Automatic
+  uploads are approved: the recommended setup is the Task Scheduler job in Watch mode
+  (`install-task.ps1`), which uploads after each play session. Each upload adds one commit
+  to main. The launcher wrapper and manual runs also work.
 - `tools/oa1_to_json.py` - converts an in-game `/oa export web` text into the same JSON.
 
 Estimated HKs = Overlord's "last 5 min" kill counts summed over 30-second samples ÷ 10.

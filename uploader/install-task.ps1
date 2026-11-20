@@ -1,5 +1,5 @@
 <#
-  NOTE: automatic uploads are not enabled yet, pending the owner's decision. Use a manual run of overlord-upload.ps1 for now.
+  NOTE: automatic uploads are approved. Watch mode (the default) is the recommended setup.
 .SYNOPSIS
   Registers (or removes) a Windows Task Scheduler job that runs the uploader for you.
 
